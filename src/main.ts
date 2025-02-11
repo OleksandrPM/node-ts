@@ -1,2 +1,6 @@
 require("dotenv").config();
-console.log(process.env["SECRET"]);
+import { App } from "infra/App";
+
+const app = new App();
+
+app.init();

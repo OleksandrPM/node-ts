@@ -2,9 +2,18 @@ import { Body, Get, JsonController, Param, Post } from "routing-controllers";
 import { IPerson } from "./Person.types";
 import { ApiResponse } from "helpers/ApiResponse";
 import { ApiError } from "helpers/ApiError";
+import { CreatePerson } from "./CreatePerson.dto";
+import { validate } from "class-validator";
 
 // In real project we save data in a DB
-const storeData: IPerson[] = [];
+const storeData: IPerson[] = [
+  {
+    id: 0,
+    name: "Alex",
+    age: 80,
+    email: "alex@mail.com",
+  },
+];
 
 @JsonController("/person")
 export default class Person {
@@ -30,8 +39,21 @@ export default class Person {
   }
 
   @Post()
-  async setPerson(@Body() body: IPerson) {
-    storeData.push(body);
+  async setPerson(@Body() body: CreatePerson) {
+    // validate the body using class-validator
+    const errors = await validate(body);
+
+    if (errors.length > 0) {
+      throw new ApiError(400, {
+        message: "Validation failed",
+        code: "PERSON_VALIDATION_ERROR",
+        errors,
+      });
+    }
+
+    const id = storeData.length;
+
+    storeData.push({ ...body, id });
 
     return new ApiResponse(true, "Person successfully created");
   }

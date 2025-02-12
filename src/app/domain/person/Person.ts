@@ -1,9 +1,17 @@
-import { Body, Get, JsonController, Param, Post } from "routing-controllers";
+import {
+  Body,
+  Get,
+  JsonController,
+  Param,
+  Post,
+  UseAfter,
+} from "routing-controllers";
 import { IPerson } from "./Person.types";
 import { ApiResponse } from "helpers/ApiResponse";
 import { ApiError } from "helpers/ApiError";
 import { CreatePerson } from "./CreatePerson.dto";
 import { validate } from "class-validator";
+import { HTTPResponseLogger } from "app/middlewares/HTTPResponseLogger";
 
 // In real project we save data in a DB
 const storeData: IPerson[] = [
@@ -11,13 +19,14 @@ const storeData: IPerson[] = [
     id: 0,
     name: "Alex",
     age: 80,
-    email: "alex@mail.com",
+    email: "aaaaalex@mail.com",
   },
 ];
 
 @JsonController("/person")
 export default class Person {
   @Get()
+  @UseAfter(HTTPResponseLogger)
   async getAll() {
     return new ApiResponse(true, storeData);
   }
